@@ -1,0 +1,13 @@
+1. one=spark.sql("Select count(STP)from cleanData") : 1180724
+
+2. two=spark.sql("Select count(STP) from cleanData where STP='9999.9'"): 330144
+
+3.>>> two = (float)(1180724)
+>>> print(two)
+1180724.0
+>>> three = (float)(330144)
+>>> print(three)
+330144.0
+>>> percentage = (three/two) * 100
+>>> print(percentage)
+27.961149261

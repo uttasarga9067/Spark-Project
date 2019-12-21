@@ -1,0 +1,8 @@
+>>> result5=spark.sql("Select GUST,STN,RIGHT(YEARMODA,4) as DATE, LEFT(YEARMODA,4)as YEAR from cleanData where GUST in (select MAX(GUST) from cleanData where GUST <>999.9)")
+>>> result5.show()
++----+------+----+----+
+|GUST|   STN|DATE|YEAR|
++----+------+----+----+
+|99.1|726130|0225|2019|
++----+------+----+----+
+>>> result5.coalesce(1).write.format('csv').save("home/singhud/output5.csv", header='true')

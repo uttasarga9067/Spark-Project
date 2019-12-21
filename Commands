@@ -1,0 +1,129 @@
+file_path = "/data/weather/2013"
+inTextData = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2014"
+inTextData2 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2015"
+inTextData3 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2016"
+inTextData4 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2017"
+inTextData5 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2018"
+inTextData6 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+file_path = "/data/weather/2019"
+inTextData7 = spark.read.format("csv").option("header", "true").option("delimiter","\t").load(file_path)
+inTextData = inTextData.unionAll(inTextData2).distinct()
+
+inTextData = inTextData5.union(inTextData6).union(inTextData7).distinct()
+inTextData.count()
+name_list = inTextData.schema.names
+name_list = str(name_list).strip("['']").split(' ')
+names = []
+
+for item in name_list:
+    if len(item)>0:
+        names.append(item)
+		
+rdd1 = inTextData.rdd
+rdd1.count()
+type(rdd1)
+rdd1.take(2)
+rdd2 = rdd1.map(lambda x: str(x).split('=')[1])
+rdd2.take(4)
+rdd3 = rdd2.map(lambda x: ' '.join(x.split()))
+rdd4 = rdd3.map(lambda x: x[2:-2])
+rdd4.take(4)
+rdd4.saveAsTextFile('home/singhud/uttasarga'+'temp')
+
+newInData = spark.read.csv('home/singhud/uttasarga20172019'+'temp',header=False,sep=' ')
+
+newInData = spark.read.csv('home/singhud/uttasarga20132016'+'temp',header=False,sep=' ')
+newInData.show(10)
+
+cleanData = newInData.drop('_c1','_c4','_c6','_c8','_c10','_c12','_c14')
+
+cleanData = cleanData.withColumnRenamed('_c0','STN').withColumnRenamed('_c2','YEARMODA')\
+                    .withColumnRenamed('_c3','TEMP').withColumnRenamed('_c5','DEWP')\
+                    .withColumnRenamed('_c7','SLP').withColumnRenamed('_c9','STP')\
+                    .withColumnRenamed('_c11','VISIB').withColumnRenamed('_c13','WDSP')\
+                    .withColumnRenamed('_c15','MXSPD').withColumnRenamed('_c16','GUST')\
+                    .withColumnRenamed('_c17','MAX').withColumnRenamed('_c18','MIN')\
+                    .withColumnRenamed('_c19','PRCP').withColumnRenamed('_c20','SNDP')\
+                    .withColumnRenamed('_c21','FRSHTT')
+					
+cleanData.printSchema()
+
+
+cleanData.show(2, False)
+
+
+
+
+from pyspark.sql.functions import col, split
+
+cleanData1=cleanData.withColumn("MAX", split(col("MAX"), "\\*").getItem(0)).withColumn("col2", split(col("MAX"), "\\*").getItem(1))
+ 
+
+cleanData2=cleanData1.withColumn("MIN", split(col("MIN"), "\\*").getItem(0)).withColumn("col3", split(col("MIN"), "\\*").getItem(1))
+
+cleanData3=cleanData2.drop('col2','col3')
+
+cleanData4 = cleanData3.withColumn("MIN_NEW", cleanData3["MIN"].cast("double"))
+
+cleanData4 = cleanData4.withColumn("MAX_NEW", cleanData3["MAX"].cast("double"))
+
+cleanData4=cleanData4.drop('MAX','MIN')
+
+cleanData4=cleanData4.withColumnRenamed("MAX_NEW","MAX")
+cleanData4=cleanData4.withColumnRenamed("MIN_NEW","MIN")
+
+rdd12=cleanData4.rdd
+
+rdd12.saveAsTextFile('home/singhud/uttasarga')
+
+cleanData4.createOrReplaceTempView("cleandata")
+
+spark.sql("select MAX(MAX) as MAX from cleandata where MAX<>9999.9").show()
+
+
+spark.sql("select STN, YEARMODA, MAX(MAX) as MAX, MIN(MIN) as MIN from cleandata where MAX<>9999.9").show()
+
+
+sc.textFile("file: home/singhud/cleanData20102011") 
+
+result5.coalesce(1).write.csv("home/singhud/result5.csv")
+
+result5.coalesce(1).write.format('csv').save("home/singhud/output5.csv", header='true')
+
+one.coalesce(1).write.format('csv').save("home/singhud/output4.csv", header='true')
+
+two.coalesce(1).write.format('csv').save("home/singhud/output41.csv", header='true')
+
+percentage.coalesce(1).write.format('csv').save("home/singhud/output42.csv", header='true')
+
+
+
+
+
+
+
+totalVal=(float)(clean6.count())
+
+nonMissingFilter=clean6.where("STP!='9999.9'")
+
+nonMissingVal=(float)(nonMissingFilter.count())
+
+percentageNonMissingVal= (nonMissingVal/totalVal) * 100
+
+percentageMissingVal = 100 - percentageNonMissingVal
+
+print(percentageMissingVal
+
+
+cleanData1=cleanData.withColumn("PRCP", split(col("PRCP"), "[A-I]").getItem(0)).withColumn("P1", split(col("PRCP"), "[A-I]").getItem(1))
+
+cleanData2 = cleanData1.drop('P1')
+
+spark.sql("Select STN,RIGHT(YEARMODA,4) as DATE, LEFT(YEARMODA,4)as YEAR from cleanData where MAX in (select MAX(MAX) as MAX, MIN(MIN) as MIN from cleandata where MAX<>9999.9)")
+
+
